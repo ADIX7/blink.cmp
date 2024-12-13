@@ -53,10 +53,24 @@ function signature.open_with_signature_help(context, signature_help)
   local active_signature = signature_help.signatures[(signature_help.activeSignature or 0) + 1]
 
   if signature.shown_signature ~= active_signature then
+    local signature_label = active_signature.label
+    local documentation = active_signature.documentation
+
+    if #signature_help.signatures > 1 then
+      signature_label = ''
+      for _, sig in ipairs(signature_help.signatures) do
+        signature_label = signature_label .. '\n' .. sig.label
+      end
+    end
+
+    if active_signature.parameters and active_signature.activeParameter ~= nil then
+      documentation = active_signature.parameters[active_signature.activeParameter + 1].documentation
+    end
+
     require('blink.cmp.lib.window.docs').render_detail_and_documentation({
       bufnr = signature.win:get_buf(),
-      detail = active_signature.label,
-      documentation = active_signature.documentation,
+      detail = signature_label,
+      documentation = documentation,
       max_width = config.max_width,
       use_treesitter_highlighting = config.treesitter_highlighting,
     })
